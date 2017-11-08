@@ -92,7 +92,12 @@ module.exports = function staticCache(dir, options, files) {
     if (enableGzip) this.vary('Accept-Encoding')
 
     if (!file.buffer) {
-      var stats = yield fs.stat(file.path)
+      var stats;
+      try {
+        stats = yield fs.stat(file.path)
+      } catch (err) {
+        return yield next
+      }
       if (stats.mtime > file.mtime) {
         file.mtime = stats.mtime
         file.md5 = null
